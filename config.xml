@@ -3,7 +3,7 @@
             <name>dwolla</name>
             <displayName><![CDATA[Dwolla]]></displayName>
             <version><![CDATA[0.1]]></version>
-            <description><![CDATA[Start accepting dwolla. It cheap and is a very good google checkout alternative.]]></description>
+            <description><![CDATA[Start accepting dwolla.]]></description>
             <author><![CDATA[Michael Stripling]]></author>
             <tab><![CDATA[payments_gateways]]></tab>
 	<confirmUninstall>Are you sure you want to uninstall?</confirmUninstall>

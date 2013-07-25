@@ -9,11 +9,12 @@ class DwollaPaymentModuleFrontController extends ModuleFrontController
 	{
 		include_once(_PS_MODULE_DIR_.'dwolla/lib/dwolla.php');
 		include_once(_PS_MODULE_DIR_.'dwolla/dwolla.php');
+		$this->display_column_left = false;
 		
 		parent::initContent();
 		
 		$shop_url = Tools::getShopDomainSsl(true)._MODULE_DIR_;
-		$dwolla = new DwollaRestClient(Configuration::get('apiKey'), Configuration::get('apiSecret'),$shop_url.'dwolla/complete.php');
+		$dwolla = new DwollaRestClient(Configuration::get('apiKey'), Configuration::get('apiSecret'),$this->context->link->getModuleLink('dwolla', 'complete')); //$shop_url.'dwolla/complete.php'); //$this->context->link->getPageLink('complete.php'));
 		
 		//setting test mode on
 		if(Configuration::get('mode'))
@@ -21,8 +22,8 @@ class DwollaPaymentModuleFrontController extends ModuleFrontController
 			
 		$dwolla->startGatewaySession();
 
-		//inserting products
-		foreach ($this->context->cart->getProducts() as $product) {
+		foreach ($this->context->cart->getProducts() as $product) 
+		{
 			$dwolla->addGatewayProduct($product["name"], $product["price"],$product["cart_quantity"]);
 		}
 		
@@ -32,31 +33,20 @@ class DwollaPaymentModuleFrontController extends ModuleFrontController
 		if ($tax < 0)
 			$tax = 0;
 		
-		$billing_address = new Address($this->context->cart->id_address_invoice);
-		$billing_address->state	= new State($billing_address->id_state);
 		$discount =$this->context->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
 		$shipping= $this->context->cart->getTotalShippingCost();
 		$callback= $shop_url.'dwolla/notifier.php';
 		$id=$this->context->cart->id;
-		$custInfo= array(
-				'firstName'=> $this->billing_address->firstname,
-				'lastName'=> $this->billing_address->lastname,
-				'email'=> $this->context->customer->email,
-				'city'=> $this->billing_address->city,
-				'state'=> $this->billing_address->state->name,
-				'zip'=> $this->billing_address->postcode
-		);
 		
 		$url=$dwolla->getGatewayURL(Configuration::get('destinationId'), $id, $discount, $shipping, $tax, '', $callback, $custInfo);
 		 
-		 if(!$url){
 		 	$this->context->smarty->assign(array(
-				'error'=> $dwolla->getError()
+				'error'=> $dwolla->getError(),
+				'back_link' => $this->context->link->getPageLink('order', true, NULL),
+				'dwolla_link' => $url,
+				'dwollaTotal' => $this->context->cart->getOrderTotal()
 			));
-			$this->setTemplate('payment.tpl');
-		}
-		//Sending customer to Dwolla website to complete their order
-		Tools::redirect($url);
+			$this->setTemplate('confirm.tpl');
 	}
 }
 

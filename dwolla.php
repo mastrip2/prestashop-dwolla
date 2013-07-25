@@ -3,6 +3,7 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
+
 class Dwolla extends PaymentModule
 {
 	protected $_html = '';	
@@ -14,14 +15,15 @@ class Dwolla extends PaymentModule
 		$this->tab = 'payments_gateways';
 		$this->version = '0.1';
 		$this->author = 'Michael Stripling';	
-		//$this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.5.4.1');	
-		$this->currencies = FALSE;
+		$this->ps_versions_compliancy = array('min' => '1.5');	
+		$this->currencies = true;
+		$this->currencies_mode = 'radio';
 		
 		parent::__construct();
 		
 		$this->page = basename(__FILE__, '.php');
 		$this->displayName = $this->l('Dwolla');
-		$this->description = $this->l('Start accepting dwolla. It cheap and is a very good google checkout alternative.');
+		$this->description = $this->l('Start accepting dwolla.');
 		
 		$this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
 		
@@ -33,9 +35,8 @@ class Dwolla extends PaymentModule
 	{
 		if (!parent::install() || !$this->registerHook('payment') || !$this->registerHook('paymentReturn') || !Configuration::updateValue('mode', 0))
 			return false;
-		createOrderState();
+		$this->createOrderState();
 		return TRUE;
-		
 	}
 	
 	public function createOrderState()
@@ -43,17 +44,17 @@ class Dwolla extends PaymentModule
 		if (!Configuration::get('dwolla_OS_AUTHORIZATION'))
 		{
 			$orderState = new OrderState();
-			$orderState->name = array();
+			$orderState->name[1] = 'Awaiting Dwolla Payment';
 			$orderState->send_email = false;
-			$orderState->color = '#DDEEFF';
+			$orderState->color = 'RoyalBlue';
 			$orderState->hidden = false;
 			$orderState->delivery = false;
 			$orderState->logable = true;
 			$orderState->invoice = true;
+			$orderState->add();
 			
 			Configuration::updateValue('dwolla_OS_AUTHORIZATION', (int)$orderState->id);
 		}
-	
 	}
 	
 	public function uninstall()
@@ -73,6 +74,7 @@ class Dwolla extends PaymentModule
 	{
 		$output=null;
 		$text = Tools::getValue($key);
+		
         if (!$text  || empty($text) || !Validate::isGenericName($text))
             $output = $this->displayError( $this->l('Invalid '.substr($key,3)) );
         else
@@ -115,97 +117,98 @@ class Dwolla extends PaymentModule
 	        $mode = Tools::getValue('mode');
 	        if(Configuration::get('mode') != $mode)
 	        {
-	        	Configuration::updateValue('mode', $mode);
-	        	$output .= $this->displayConfirmation($this->l('Mode updated'));
+	            	Configuration::updateValue('mode', $mode); 
+	            	$output .= $this->displayConfirmation($this->l('Mode updated'));
 	        }
 	    }
 	    return $output.$this->displayForm();
 	}
 
 	public function displayForm()
-	{    
+	{
 	    // Get default Language
 	    $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
 	     
 	    // Init Fields form array
 	    $fields_form[0]['form'] = array(
-	    		'legend' => array(
-	    				'title' => $this->l('Settings'),
-	    		),
-	    		'input' => array(
-	    				array(
-	    						'type' => 'text',
-	    						'label' => $this->l('Key'),
-	    						'name' => 'apiKey',
-	    						'size' => 63,
-	    						'required' => true,
-	    						'hint' => $this->l('Consumer key for the application.')
-	    				),
-	    				array(
-	    						'type' => 'text',
-	    						'label' => $this->l('Secret'),
-				                'name' => 'apiSecret',
-				                'size' => 63,
-				                'required' => true,
-				                'hint' => $this->l('Consumer secret for the application.')
-	    				),
-	    				array(
-	    						'type' => 'text',
-				                'label' => $this->l('Dwolla ID'),
-				                'name' => 'destinationId',
-				                'size' => 15,
-				                'required' => true,
-				                'empty_message' => '812-xxx-xxxx',
-				                'hint' => $this->l('Dwolla ID of the Dwolla account receiving the funds. Format will always match "812-xxx-xxxx".')
-	    				),
-	    				array(
-	    						'type' => 'radio',
-				                'label' => $this->l('Mode'),
-				                'name' => 'mode',
-				                'values' => array(
-				                				array(
-				                					'id' => 'prod',
-				                					'value' => 0,
-				                					'label' => $this->l('Production')
-				                				),
-				                				array(
-				                					'id' => 'prod',
-				                					'value' => 1,
-				                					'label' => $this->l('Test')
-				                				)
-	    									),
-	    						'required' => true,
-	    				),
-	    		),
-	    		'submit' => array(
-	    						'title' => $this->l('Save'),
-	    						'class' => 'button'
-	    					)
+	        'legend' => array(
+	            'title' => $this->l('Settings'),
+	        ),
+	        'input' => array(
+	            array(
+	                'type' => 'text',
+	                'label' => $this->l('Key'),
+	                'name' => 'apiKey',
+	                'size' => 63,
+	                'required' => true,
+	                'hint' => $this->l('Consumer key for the application.')
+	            ),
+	            array(
+	                'type' => 'text',
+	                'label' => $this->l('Secret'),
+	                'name' => 'apiSecret',
+	                'size' => 63,
+	                'required' => true,
+	                'hint' => $this->l('Consumer secret for the application.')
+	            ),
+	            array(
+	                'type' => 'text',
+	                'label' => $this->l('Dwolla ID'),
+	                'name' => 'destinationId',
+	                'size' => 15,
+	                'required' => true,
+	                'empty_message' => '812-xxx-xxxx',
+	                'hint' => $this->l('Dwolla ID of the Dwolla account receiving the funds. Format will always match "812-xxx-xxxx".')
+	            ),
+	            array(
+	                'type' => 'radio',
+	                'label' => $this->l('Mode'),
+	                'name' => 'mode',
+	                'values' => array(
+					array(
+						'id' => 'prod',
+						'value' => 0,
+						'label' => $this->l('Production')
+					),
+					array(
+						'id' => 'prod',
+						'value' => 1,
+						'label' => $this->l('Test')
+					)
+			),
+			'required' => true,
+	            ),
+	        ),
+	        'submit' => array(
+	            'title' => $this->l('Save'),
+	            'class' => 'button'
+	        )
 	    );
 	    
-	    $fields_form[1]['form'] = array(
-	    		'legend' => array(
-	    						'title' => $this->l('Donation'),
-	    				),
-	    		'input' => array(
-	    				array(
-	    						'type' => 'free',
-	    						'label' => 'If you like my work. Consider making a small donation.
-	    						<script src="https://www.dwolla.com/scripts/button.min.js" class="dwolla_button" type="text/javascript"
-	    						data-key="rAhKhh7NSbP55gw1s0woDI2NIDF4TLbwk8R8i282MOgTjJIyfW"
-	    						data-redirect="http://ccrazy.exofire.net/thankyou.php"
-	    						data-label="Donate now"
-	    						data-name="Dwolla payment gateway donation"
-	    						data-description="undefined"
-	    						data-amount="5"
-	    						data-shipping="0"
-	    						data-tax="0"
-	    						data-guest-checkout="true"
-	    						data-type="freetype"
-	    						>
-	    						</script>',
-	    		'name' => 'donation',
-	    		))
+	    $fields_form[1]['form'] = array(    	
+	        'legend' => array(
+	            'title' => $this->l('Donation'),
+	        ),
+	    	'input' => array(
+	    array(
+	        'type' => 'free',
+	        'label' => 'If you like my work. Consider making a small donation.
+	        <script
+	  src="https://www.dwolla.com/scripts/button.min.js" class="dwolla_button" type="text/javascript"
+	  data-key="rAhKhh7NSbP55gw1s0woDI2NIDF4TLbwk8R8i282MOgTjJIyfW"
+	  data-redirect="http://ccrazy.exofire.net/thankyou.php"
+	  data-label="Donate now"
+	  data-name="Dwolla payment gateway donation"
+	  data-description="undefined"
+	  data-amount="5"
+	  data-shipping="0"
+	  data-tax="0"
+	  data-guest-checkout="true"
+	  data-type="freetype"
+	>
+	</script>',
+	        'name' => 'donation',
+	    ))
 	    );
 	     
 	    $helper = new HelperForm();
@@ -257,14 +260,16 @@ class Dwolla extends PaymentModule
 	}
 	
 	public function hookPaymentReturn($params)
-	{
+	{	
+		$this->context->smarty->assign(array(				
+				'dwolla_transaction' => $this->context->cookie->dwolla_transaction,
+				'id_order' => $params['objOrder']->reference,
+				'total_to_pay' => $params['total_to_pay'],
+				'clearingDate' => $this->context->cookie->dwolla_clearingDate,
+				'order' => $order
+			));
+			
 		return $this->display(__FILE__, 'confirmation.tpl');
-	}
-	
-	public function check()
-	{
-		$url = 'index.php?controller=order-confirmation&';
-		header('location:'.__PS_BASE_URI__.$url.'id_module='.(int)$this->id.'&id_cart='.(int)Tools::getValue('orderId').'&key='.$this->context->customer->secure_key);
 	}
 	
 	public function validate($data)
@@ -294,9 +299,9 @@ class Dwolla extends PaymentModule
 		else 
 		{
 			$payment = Configuration::get('PS_OS_ERROR');
-			$message .= $this->l('Transaction could not be verified.').'<br />';
+			$message .= $this->l('Transaction could not be verified. Invalid signature.').'<br />';
 		}
-		
+
 		$this->validateOrder($context->cart->id, (int)$payment, $data->Amount, 'Dwolla', $message, array("transaction_id" => $data->TransactionId), NULL, false, $context->cart->secure_key);
 	}
 }

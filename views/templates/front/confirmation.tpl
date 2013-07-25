@@ -6,15 +6,15 @@
 	{assign var='current_step' value='payment'}
 	{include file="$tpl_dir./order-steps.tpl"}
 
-
-	
-
 	<br />
 
 	{if $order}
 	<p>{l s='Total of the transaction (taxes incl.) :' mod='dwolla'} <span class="bold">{$price}</span></p>
 	<p>{l s='Your order ID is :' mod='dwolla'} <span class="bold">{$id_order}</span></p>
-	<p>{l s='Your Dwolla transaction ID is :' mod='dwolla'} <span class="bold">{$id_transaction}</span></p>
+	<p>{l s='Your Dwolla transaction ID is :' mod='dwolla'} <span class="bold">{$dwolla_transaction}</span></p>
+	{if $clearingDate}
+	<p>{l s='Payment clearing date :' mod='dwolla'} <span class="bold">{$clearingDate}</span></p>
+	{/if}
 	{/if}
 	<br />
 
