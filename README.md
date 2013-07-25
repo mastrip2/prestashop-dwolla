@@ -8,25 +8,25 @@ To install
 
 --Methord 1 (from Github)
 
-Download zip
-unzip files and rename folder to 'dwolla' (exclude the '')
-upload folder from zip to your PrestaShop module directory. The default directory is prestashop/modules/
-Login to your PrestaShop admin and navigate to Modules -> Modules to get a list of all modules for your site
-Scroll down to Dwolla plugin and click install
-Now scroll down to Dwolla (if it didnt do it automatically) and click configure
-Fill in all relavant information (see section A for how to get api key and etc....)
-Everything should be working and your customers can pay thru Dwolla! Yah!!
+1. Download zip
+2. unzip files and rename folder to 'dwolla' (exclude the '')
+3. upload folder from zip to your PrestaShop module directory. The default directory is prestashop/modules/
+4. Login to your PrestaShop admin and navigate to Modules -> Modules to get a list of all modules for your site
+5. Scroll down to Dwolla plugin and click install
+6. Now scroll down to Dwolla (if it didnt do it automatically) and click configure
+7. Fill in all relavant information (see section A for how to get api key and etc....)
+8. Everything should be working and your customers can pay thru Dwolla! Yah!!
 
 --Methord 2 (from one of my post)
 
-Dowload zip from post
-Login to your PrestaShop admin and navigate to your module list
-On the Right click "Add a new module"
-Click "choose file" and select the zip you download, then click "upload this module"
-Scroll down to Dwolla and click install
-Now scroll down to Dwolla (if it didnt do it automatically) and click configure
-Fill in all relavant information (see section A for how to get api key and etc....)
-Everything should be working and your customers can pay thru Dwolla! Yah!!
+1. Dowload zip from post
+2. Login to your PrestaShop admin and navigate to your module list
+3. On the Right click "Add a new module"
+4. Click "choose file" and select the zip you download, then click "upload this module"
+5. Scroll down to Dwolla and click install
+6. Now scroll down to Dwolla (if it didnt do it automatically) and click configure
+7. Fill in all relavant information (see section A for how to get api key and etc....)
+8. Everything should be working and your customers can pay thru Dwolla! Yah!!
 
 Section A: Getting Dwolla configuration keys
 
